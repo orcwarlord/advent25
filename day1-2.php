@@ -1,44 +1,41 @@
 <?php
 
+$input = file('day1.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-$lines = [];
-$position = 50;
-$zeroCount = 0;
-$file = fopen('day1.txt', 'r');
+$current = 50;
 
-if ($file) {
-    while (($line = fgets($file)) !== false) {
-        $lines[] = trim($line); // trim removes newline
-    }
-    fclose($file);
-}
+$part1 = 0;   // count times dial ends a rotation on 0
+$part2 = 0;   // count all times a click lands on 0
 
-// read each line and 
-foreach ($lines as $line) {
-    echo "Processing line: " . $line . "   ";
-    $direction = substr($line, 0, 1);
-    // echo "Direction: " . $direction . "   ";
-    $steps = (int)substr($line, 1);
-    $rotations = (int)($steps/100);
-    $steps = $steps%100;
+foreach ($input as $line) {
+    $dir = $line[0];             // 'L' or 'R'
+    $dist = intval(substr($line, 1));
 
-    // echo "Steps: " . $steps . "  ";
-    
-    if ($direction === 'R') {
-        $position += ( $steps );
-        if ($position >= 100) {
-            $position -= 100;
+    // ----- PART 2: count full cycles -----
+    $fullCycles = intdiv($dist, 100);
+    $part2 += $fullCycles;
+
+    // simulate the remaining steps for both part 1 and 2
+    $steps = $dist % 100;
+
+    for ($i = 0; $i < $steps; $i++) {
+        if ($dir === 'L') {
+            $current = ($current + 99) % 100;   // equivalent to -1 mod 100
+        } else {
+            $current = ($current + 1) % 100;
         }
-    } elseif ($direction === 'L') {
-        $position -= $steps;
-        if ($position < 0) {
-            $position += 100;
-        } 
+
+        // Part 2: any click landing on 0
+        if ($current === 0) {
+            $part2++;
+        }
     }
-    echo "New position: " . $position  . "<br>\n";
-    if ($position === 0) {
-        $zeroCount++;
+
+    // Part 1: only if the final position after the rotation is 0
+    if ($current === 0) {
+        $part1++;
     }
 }
 
-echo "Number of zeroes is: " . $zeroCount . "\n";
+echo "Part 1: $part1\n";
+echo "Part 2: $part2\n";
